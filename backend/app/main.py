@@ -1,5 +1,5 @@
 import random
-from fastapi import FastAPI, HTTPException, Depends, Body, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, Body, WebSocket, WebSocketDisconnect, Request
 from .schemas import UserCreate, UserLogin, Token, UserOut, FoodPostCreate, FoodPostOut, AddLocationRequest, ClaimRequest
 from .database import user_collection, food_collection, location_collection    
 from .auth import hash_password, verify_password, create_access_token, get_current_user
@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://192.168.29.22:5173/"],
+    allow_origins=["http://192.168.29.22:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,6 +65,7 @@ def send_otp_email(email, otp):
 
 @app.post("/register")
 async def register(user: UserCreate):
+    print(user)
     existing_user = await user_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already exists")
